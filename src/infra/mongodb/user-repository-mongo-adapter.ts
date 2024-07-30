@@ -117,7 +117,7 @@ export class UserRepositoryMongoAdapter implements IUserRepository {
         }
       }
     )
-    return MongoHelper.map(updateUser.value)
+    return MongoHelper.map(updateUser)
   }
 
   async updateUserPassword (updateUserPasswordDto: Omit<UpdateUserPasswordDto, 'passwordConfirmation'>): Promise<void> {
