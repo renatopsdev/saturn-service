@@ -1,4 +1,4 @@
-import * as utils from '@/main/utils'
+import * as utils from '@/main/utils';
 
 describe('Utils', () => {
   describe('getFieldsWithValidValues', () => {
@@ -8,15 +8,14 @@ describe('Utils', () => {
         name: 'bar',
         email: '',
         birthDate: null,
-        age: 31
-      }
-      const expectedResponse = utils.getFieldsWithValidValues(user)
+        age: 31,
+      };
+      const expectedResponse = utils.getFieldsWithValidValues(user, 'name');
       expect(expectedResponse).toEqual({
         userId: 'foo',
-        name: 'bar',
-        age: 31
-      })
-    })
+        age: 31,
+      });
+    });
 
     it('Should return correctly only fields with values and remove field is provided by parameter', async () => {
       const user = {
@@ -24,13 +23,13 @@ describe('Utils', () => {
         name: 'bar',
         email: '',
         birthDate: null,
-        age: 31
-      }
-      const expectedResponse = utils.getFieldsWithValidValues(user, 'userId')
+        age: 31,
+      };
+      const expectedResponse = utils.getFieldsWithValidValues(user, 'userId');
       expect(expectedResponse).toEqual({
         name: 'bar',
-        age: 31
-      })
-    })
-  })
-})
+        age: 31,
+      });
+    });
+  });
+});

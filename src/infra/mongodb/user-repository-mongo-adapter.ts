@@ -12,7 +12,9 @@ import { type UpdateUserOutputDto } from '@/main/dtos/user/update-user-output.dt
 import { type UpdateUserDto } from '@/main/dtos/user/update-user.dto';
 import { type Collection, ObjectId } from 'mongodb';
 import * as utils from '@/main/utils';
+import type { AddressDto } from '@/main/dtos/address/address.dto';
 import { MongoHelper } from './mongo-helper';
+import { ObjectFields } from '@/main/utils';
 
 export class UserRepositoryMongoAdapter implements IUserRepository {
   private userCollection: Collection;
@@ -100,7 +102,7 @@ export class UserRepositoryMongoAdapter implements IUserRepository {
         _id: new ObjectId(userId),
       },
       {
-        $set: utils.getFieldsWithValidValues(updateUserDto, 'userId'),
+        $set: utils.getFieldsWithValidValues(updateUserDto as unknown as ObjectFields, 'userId'),
       },
       {
         upsert: true,
