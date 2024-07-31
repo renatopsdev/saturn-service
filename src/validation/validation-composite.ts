@@ -1,17 +1,16 @@
-import type { IValidation } from '@/presentation/protocols/validation'
+import type { IValidation } from '@/presentation/protocols/validation';
 
 export class ValidationComposite implements IValidation {
-  constructor (
-    private readonly validations: IValidation[]
-  ) { }
+  constructor(private readonly validations: IValidation[]) {}
 
-  validate (input: any): Error | null {
+  validate(input: string): Error | null {
+    // eslint-disable-next-line no-restricted-syntax
     for (const validation of this.validations) {
-      const isError = validation.validate(input)
+      const isError = validation.validate(input);
       if (isError) {
-        return isError
+        return isError;
       }
     }
-    return null
+    return null;
   }
 }

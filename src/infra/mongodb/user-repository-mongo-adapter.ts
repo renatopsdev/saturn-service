@@ -1,5 +1,4 @@
-import type { IUserRepository } from '@/data/protocols/user-repository'
-import { MongoHelper } from './mongo-helper'
+import type { IUserRepository } from '@/data/protocols/user-repository';
 import type {
   SignUpUserDto,
   LoadUserDto,
@@ -7,30 +6,32 @@ import type {
   UpdateConfirmUserDto,
   UpdateUserPasswordDto,
   GetUserOutputDto,
-  FilterUserDto
-} from '@/main/dtos/user'
-import { type UpdateUserOutputDto } from '@/main/dtos/user/update-user-output.dto'
-import { type UpdateUserDto } from '@/main/dtos/user/update-user.dto'
-import { type Collection, ObjectId } from 'mongodb'
-import * as utils from '@/main/utils'
+  FilterUserDto,
+} from '@/main/dtos/user';
+import { type UpdateUserOutputDto } from '@/main/dtos/user/update-user-output.dto';
+import { type UpdateUserDto } from '@/main/dtos/user/update-user.dto';
+import { type Collection, ObjectId } from 'mongodb';
+import * as utils from '@/main/utils';
+import { MongoHelper } from './mongo-helper';
 
 export class UserRepositoryMongoAdapter implements IUserRepository {
-  private userCollection: Collection
+  private userCollection: Collection;
 
-  async create (userDto: Omit<SignUpUserDto, 'passwordConfirmation'>): Promise<UserOutputDto> {
-    const createUser = await this.getUserCollection().insertOne(userDto)
+  async create(userDto: Omit<SignUpUserDto, 'passwordConfirmation'>): Promise<UserOutputDto> {
+    const createUser = await this.getUserCollection().insertOne(userDto);
     const user = await this.getUserCollection().findOne(
       { _id: createUser.insertedId },
       {
         projection: {
           name: 1,
-          email: 1
-        }
-      })
-    return MongoHelper.map(user)
+          email: 1,
+        },
+      },
+    );
+    return MongoHelper.map(user);
   }
 
-  async loadByEmail (email: string): Promise<LoadUserDto | null> {
+  async loadByEmail(email: string): Promise<LoadUserDto | null> {
     const user = await this.getUserCollection().findOne(
       { email },
       {
@@ -38,67 +39,68 @@ export class UserRepositoryMongoAdapter implements IUserRepository {
           _id: 1,
           name: 1,
           email: 1,
-          password: 1
-        }
-      })
-    return user && MongoHelper.map(user)
+          password: 1,
+        },
+      },
+    );
+    return user && MongoHelper.map(user);
   }
 
-  async updateAccessToken (userId: string, token: string): Promise<void> {
+  async updateAccessToken(userId: string, token: string): Promise<void> {
     await this.getUserCollection().updateOne(
       {
-        _id: new ObjectId(userId)
+        _id: new ObjectId(userId),
       },
       {
         $set: {
-          accessToken: token
-        }
-      }
-    )
+          accessToken: token,
+        },
+      },
+    );
   }
 
-  async loadByToken (accessToken: string, role?: string): Promise<LoadUserDto | null> {
-    const user = await this.getUserCollection().findOne({
-      accessToken,
-      $or: [
-        { role },
-        { role: 'admin' }
-      ]
-    }, {
-      projection: {
-        _id: 1
-      }
-    })
+  async loadByToken(accessToken: string, role?: string): Promise<LoadUserDto | null> {
+    const user = await this.getUserCollection().findOne(
+      {
+        accessToken,
+        $or: [{ role }, { role: 'admin' }],
+      },
+      {
+        projection: {
+          _id: 1,
+        },
+      },
+    );
 
-    return user && MongoHelper.map(user)
+    return user && MongoHelper.map(user);
   }
 
-  async updateConfirmUser (updateConfirmUserDto: UpdateConfirmUserDto): Promise<void> {
-    const { confirmUser, userId } = updateConfirmUserDto
+  async updateConfirmUser(updateConfirmUserDto: UpdateConfirmUserDto): Promise<void> {
+    const { confirmUser, userId } = updateConfirmUserDto;
     await this.getUserCollection().findOneAndUpdate(
       {
-        _id: new ObjectId(userId)
+        _id: new ObjectId(userId),
       },
       {
         $set: {
           confirmUser,
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       },
       {
-        upsert: true
-      }
-    )
+        upsert: true,
+      },
+    );
   }
 
-  async update (updateUserDto: UpdateUserDto): Promise<UpdateUserOutputDto> {
-    const { userId } = updateUserDto
+  async update(updateUserDto: UpdateUserDto): Promise<UpdateUserOutputDto> {
+    const { userId } = updateUserDto;
     const updateUser = await this.getUserCollection().findOneAndUpdate(
       {
-        _id: new ObjectId(userId)
+        _id: new ObjectId(userId),
       },
       {
-        $set: utils.getFieldsWithValidValues(updateUserDto, 'userId')
+        $set: utils.getFieldsWithValidValues(updateUserDto, 'userId'),
       },
       {
         upsert: true,
@@ -113,35 +115,35 @@ export class UserRepositoryMongoAdapter implements IUserRepository {
           type: 1,
           document: 1,
           createdAt: 1,
-          updatedAt: 1
-        }
-      }
-    )
-    return MongoHelper.map(updateUser)
+          updatedAt: 1,
+        },
+      },
+    );
+    return MongoHelper.map(updateUser);
   }
 
-  async updateUserPassword (updateUserPasswordDto: Omit<UpdateUserPasswordDto, 'passwordConfirmation'>): Promise<void> {
-    const { userId, password } = updateUserPasswordDto
+  async updateUserPassword(updateUserPasswordDto: Omit<UpdateUserPasswordDto, 'passwordConfirmation'>): Promise<void> {
+    const { userId, password } = updateUserPasswordDto;
     await this.getUserCollection().findOneAndUpdate(
       {
-        _id: new ObjectId(userId)
+        _id: new ObjectId(userId),
       },
       {
         $set: {
           password,
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       },
       {
-        upsert: true
-      }
-    )
+        upsert: true,
+      },
+    );
   }
 
-  async getUser (userId: string): Promise<GetUserOutputDto | null> {
+  async getUser(userId: string): Promise<GetUserOutputDto | null> {
     const user = await this.getUserCollection().findOne(
       {
-        _id: new ObjectId(userId)
+        _id: new ObjectId(userId),
       },
       {
         projection: {
@@ -156,40 +158,39 @@ export class UserRepositoryMongoAdapter implements IUserRepository {
           confirmUser: 1,
           document: 1,
           createdAt: 1,
-          updatedAt: 1
-        }
-      }
-    )
-    return user && MongoHelper.map(user)
+          updatedAt: 1,
+        },
+      },
+    );
+    return user && MongoHelper.map(user);
   }
 
-  async getAllUsers (filterUserDto: FilterUserDto): Promise<GetUserOutputDto[]> {
-    const { startDate, endDate, email, document } = filterUserDto
+  async getAllUsers(filterUserDto: FilterUserDto): Promise<GetUserOutputDto[]> {
+    const { startDate, endDate, email, document } = filterUserDto;
     const filter = !(startDate ?? endDate ?? email ?? document)
       ? {}
       : {
           $or: [
             {
-              email
+              email,
             },
             {
-              document: document ?? ''
-            },
-            {
-              createdAt: {
-                $gte: startDate ? new Date(startDate) : ''
-              }
+              document: document ?? '',
             },
             {
               createdAt: {
-                $lte: endDate ? new Date(endDate) : ''
-              }
-            }
-          ]
-        }
-    const users = await this.getUserCollection().find(
-      filter,
-      {
+                $gte: startDate ? new Date(startDate) : '',
+              },
+            },
+            {
+              createdAt: {
+                $lte: endDate ? new Date(endDate) : '',
+              },
+            },
+          ],
+        };
+    const users = await this.getUserCollection()
+      .find(filter, {
         projection: {
           _id: 1,
           email: 1,
@@ -202,18 +203,19 @@ export class UserRepositoryMongoAdapter implements IUserRepository {
           confirmUser: 1,
           document: 1,
           createdAt: 1,
-          updatedAt: 1
-        }
-      }).toArray()
+          updatedAt: 1,
+        },
+      })
+      .toArray();
 
-    return MongoHelper.mapCollection(users)
+    return MongoHelper.mapCollection(users);
   }
 
-  private getUserCollection (): Collection {
+  private getUserCollection(): Collection {
     if (!this.userCollection) {
-      this.userCollection = MongoHelper.getCollection('users')
+      this.userCollection = MongoHelper.getCollection('users');
     }
 
-    return this.userCollection
+    return this.userCollection;
   }
 }
